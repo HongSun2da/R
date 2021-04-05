@@ -258,7 +258,7 @@ ggplot2::ggplot(docs_token,
 
 
 # 1. 빈도분석 (term frequency, tf)      ----------------------------------------
-# tf-idf(term frequency-inverse document frequency)
+# tf-idf(term frequency-inverse document frequency) - 대통령별 유니크한 단어 검색
 
 docs_dtm2 = tm::DocumentTermMatrix(docs_corpus,
                                    control = list(weighting=tm::weightTfIdf))
@@ -277,6 +277,73 @@ rownames(docs_dtm2) = c("Clinton","Bush", "Obama", "Trump")
 tm::inspect(docs_dtm2)
 
 # 소스변경 처리함
+
+docs_tfidf = tidytext::tidy(docs_dtm2) %>%
+  mutate(tf_idf=count, count=NULL)
+
+docs_tfidf = docs_tfidf %>%
+  dplyr::mutate(document=factor(document, levels=c("Clinton","Bush", "Obama", "Trump"))) %>%
+  dplyr::arrange(desc(tf_idf)) %>%
+  dplyr::group_by(document) %>%
+  dplyr::top_n(n=10, wt=tf_idf) %>%
+  ungroup()
+
+docs_tfidf
+
+ggplot2::ggplot(docs_tfidf,
+                aes(reorder_within(x=term, by=tf_idf, within=document),  y=tf_idf, fill=document)) +
+  ggplot2::geom_col(show.legend=FALSE) +
+  ggplot2::facet_wrap(~document, 
+                      ncol=2, 
+                      scales="free") +
+  tidytext::scale_x_reordered() +
+  ggplot2::labs(x=NULL, 
+                y="Term frequency - Inverse Document Frequence") +
+  ggplot2::geom_text(aes(label=round(tf_idf, 5)),
+                     size=3.5,
+                     color="black",
+                     hjust=1.3) +
+  ggplot2::coord_flip()
+
+
+
+
+
+# 1. 빈도분석 (term frequency, tf)      ----------------------------------------
+# tf(term frequency) - 
+
+
+docs_address = docs %>%
+  tidytext::unnest_tokens(word, text)
+
+docs_address =docs_address %>%
+  dplyr::anti_join(stop_words, by="word") %>%
+  dplyr::filter(!grepl(pattern="\\d+", word)) %>%
+  dplyr::mutate(word=gsub(pattern="'", replacement="", word)) %>%
+  dplyr::mutate(word=gsub(pattern="america|americas|american|americans", replacement="america", word)) %>%
+  count(President, word, sort=TRUE, name="count") %>%
+  ungroup()
+
+docs_address %>%
+  dplyr::group_by(word) %>%
+  dplyr::summarise(count=sum(count)) %>%
+  dplyr::arrange(desc(count)) %>%
+  dplyr::top_n(n=10, wt=count) %>%
+  ggplot2::ggplot(aes(reorder(word, -count), count)) +
+  geom_col(color="dimgray", fill="salmon", width=0.6) +
+  theme(axis.text.x = element_text(angle=45, hjust=1))
+  geom_text(aes(label=count), size=3.5, color="black") +
+  labs(x=NULL, y="Term frequency (count)")
+
+
+
+
+# 1. 빈도분석 (term frequency, tf)      ----------------------------------------
+# tf-idf(inverse document frequency) -> 단위의 중요도 측도 방법
+
+docs_address = docs_address %>%
+    bind
+
 
 
 
