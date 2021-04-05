@@ -276,6 +276,7 @@ rownames(docs_dtm2) = c("Clinton","Bush", "Obama", "Trump")
 
 tm::inspect(docs_dtm2)
 
+# 소스변경 처리함
 
 
 
