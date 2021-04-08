@@ -245,3 +245,194 @@ ggplot2::ggplot(data_token,
 
 
 
+
+# word cloud   =================================================================
+library(wordcloud)
+
+#install.packages("reshape2")
+library(reshape2)
+
+
+# patient  cancer   virus    문자 제외 하기
+data_token = token %>%
+  dplyr::inner_join(tidytext::get_sentiments("bing"), by="word") %>%
+  dplyr::filter(!(word == "patient" | word == "cancer" | word == "virus")) %>%
+  dplyr::count(word, sentiment, sort=TRUE)
+
+
+
+# 그래프 그리기
+
+token %>%
+  # inner join 
+  dplyr::inner_join(tidytext::get_sentiments("bing"), 
+                    by="word") %>%
+  # 데이터 필터 처리
+  dplyr::filter(!(word == "patient" | word == "cancer" | word == "virus")) %>%
+  # group by conunt
+  dplyr::count(word, 
+               sentiment, 
+               sort=TRUE) %>%
+  dplyr::ungroup() %>%
+  # 컬럼 나누기 하기
+  reshape2::acast(word ~ sentiment, 
+                  value.var = "n", 
+                  fill = 0) %>%
+  # wordcloud 만들기
+  wordcloud::comparison.cloud(colors = c("tomato", "cornflowerblue"),
+                              title.size = 2,
+                              title.colors = c("red","blue"),
+                              title.bg.colors = "wheat",
+                              scale=c(4, 0.3),
+                              max.words = 200)
+    
+
+# 뉴스사별 부정, 긍정 분석 하기
+
+
+source_token = token %>%
+  # sentiments 와 inner join 
+  dplyr::inner_join(tidytext::get_sentiments("bing"), 
+                    by="word") %>%
+  # 데이터 필터 처리
+  dplyr::filter(!(word == "patient" | word == "cancer" | word == "virus")) %>%
+  # 컬럼별 count
+  dplyr::count(word, 
+               sentiment, 
+               source,
+               sort=TRUE) %>%
+  # 언론사별 감정 분리
+  dplyr::group_by(source, sentiment) %>%
+  # 상위 10개
+  dplyr::top_n(10, n) %>%
+  dplyr::ungroup()
+
+source_token # A tibble: 86 x 4
+
+# 그래프 그리기
+ggplot2::ggplot(source_token,
+                aes(x = tidytext::reorder_within(x = word, by = n, within = source), y = n, fill = source)) +
+  ggplot2::geom_col(show.legend = FALSE) +
+  ggplot2::facet_wrap(~ factor(source, labels = c("BBC", "CNN", "FoxNews", "NBC")) + sentiment,
+                      ncol = 2,
+                      scales = "free") +
+  tidytext::scale_x_reordered() +
+  ggplot2::labs(x = NULL, y="Count") +
+  ggplot2::coord_flip()
+                  
+                  
+                  
+
+# tidytext::reorder_within(x = word, by = n, within = source),
+
+table(source_token$source)
+
+
+
+# 시계열 부정, 긍정 분석 하기    -----------------------------------------------
+
+source_token = token %>%
+  # sentiments 와 inner join 
+  dplyr::inner_join(tidytext::get_sentiments("bing"), 
+                    by="word") %>%
+  # 데이터 필터 처리
+  dplyr::filter(!(word == "patient" | word == "cancer" | word == "virus")) %>%
+  # month 단위로 구분하기
+  dplyr::mutate(time = lubridate::floor_date(x = datatime, unit = "month")) %>%
+  # 컬럼별 count
+  dplyr::count(sentiment, 
+               time) %>%
+  # 감정별 그룹
+  dplyr::group_by(sentiment) %>%
+  dplyr::slice(2:(n() - 1)) %>%
+  dplyr::ungroup()
+
+source_token  # A tibble: 62 x 3
+
+# 지역 시간 설정
+Sys.setlocale("LC_TIME", "English")
+
+ggplot2::ggplot(source_token,
+                aes(x = time, y = n, fill = sentiment, color = sentiment )) +
+  ggplot2::geom_area(position = "identity",
+                     alpha = 0.3) +
+  ggplot2::geom_line(size = 1.5) +
+  ggplot2::scale_fill_manual(labels = c("Negative", "Positive"),
+                             values = c("orangered", "deepskyblue2")) + 
+  ggplot2::scale_color_manual(labels = c("Negative", "Positive"),
+                             values = c("orangered", "deepskyblue2")) +
+  ggplot2::scale_x_datetime(date_labels = "%b %Y",
+                            date_breaks = "6 month") +
+  ggplot2::labs(x = NULL,
+                y = "Count") +
+  ggplot2::theme(legend.position = "bottom",
+                 legend.title = element_blank())
+
+# 지역 시간 재설정
+Sys.setlocale()
+
+
+
+# 뉴스사 별 시계열 부정, 긍정 분석 하기    -----------------------------------------------
+
+source_token = token %>%
+  # sentiments 와 inner join 
+  dplyr::inner_join(tidytext::get_sentiments("bing"), 
+                    by="word") %>%
+  # 데이터 필터 처리
+  dplyr::filter(!(word == "patient" | word == "cancer" | word == "virus")) %>%
+  # month 단위로 구분하기
+  dplyr::mutate(time = lubridate::floor_date(x = datatime, unit = "month")) %>%
+  # 컬럼별 count
+  dplyr::count(source,
+               sentiment, 
+               time) %>%
+  # 감정별 그룹
+  dplyr::group_by(source,
+                  sentiment) %>%
+  dplyr::slice(2:(n() - 1)) %>%
+  dplyr::ungroup()
+
+source_token  # A tibble: 142 x 4
+
+
+# 지역 시간 설정
+Sys.setlocale("LC_TIME", "English")
+
+
+ggplot2::ggplot(source_token,
+                aes(x = time, y = n, fill = sentiment, color = sentiment )) +
+  ggplot2::geom_area(position = "identity",
+                     alpha = 0.3) +
+  ggplot2::geom_line(size = 1.5) +
+  ggplot2::facet_wrap(~ factor(source, labels = c("BBC", "CNN", "FoxNews", "NBC")),
+                      nrow = 4,
+                      scales = "free") + 
+  ggplot2::scale_fill_manual(labels = c("Negative", "Positive"),
+                             values = c("coral", "cornflowerblue")) + 
+  ggplot2::scale_color_manual(labels = c("Negative", "Positive"),
+                              values = c("coral", "cornflowerblue")) +
+  ggplot2::scale_x_datetime(date_labels = "%b %Y",
+                            date_breaks = "2 month") +
+  ggplot2::labs(x = NULL,
+                y = "Count") +
+  ggplot2::theme(legend.position = "bottom",
+                 legend.title = element_blank(),
+                 axis.text.x = element_text(size=8))
+
+
+
+# 지역 시간 재설정
+Sys.setlocale()
+
+
+
+
+
+
+
+
+
+
+
+
