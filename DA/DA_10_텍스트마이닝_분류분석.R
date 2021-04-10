@@ -184,9 +184,9 @@ ToSpace = tm::content_transformer(function(x, pattern)
 })
 
 # [: ; / 문자열] 제거 = try:wales > try wales
-docs = tm::tm_map(docs, StrRemove, ":")
-docs = tm::tm_map(docs, StrRemove, ";")
-docs = tm::tm_map(docs, StrRemove, "/")
+docs = tm::tm_map(docs, ToSpace, ":")
+docs = tm::tm_map(docs, ToSpace, ";")
+docs = tm::tm_map(docs, ToSpace, "/")
 
 #[! & , > . ? -] 부호 제거
 docs = tm::tm_map(docs, tm::removePunctuation)
