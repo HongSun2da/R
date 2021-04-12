@@ -4,7 +4,7 @@
 # 정규분포  dnorm()       pnorm()       qnorm()       rnorm()
 # t분포     dt()          pt()          qt()          rt()
 # F분포     df()          pf()          qf()          rf()
-# x2분포    dchisq()      pchisq()      qchisq()   data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAWElEQVR42mNgGPTAxsZmJsVqQApgmGw1yApwKcQiT7phRBuCzzCSDSHGMKINIeDNmWQlA2IigKJwIssQkHdINgxfmBBtGDEBS3KCxBc7pMQgMYE5c/AXPwAwSX4lV3pTWwAAAABJRU5ErkJggg==   rchisq()
+# x2분포    dchisq()      pchisq()      qchisq()      rchisq()
 # 일양분포  dunif()       punif()       qunif()       runif()
 # 
 # 
