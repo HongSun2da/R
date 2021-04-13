@@ -6,7 +6,7 @@ str(amazon_review) # 'data.frame':	3670 obs. of  8 variables:
 
 View(amazon_review)
 
-install.packages("tidyverse")
+#install.packages("tidyverse")
 library(tidyverse)
 
 

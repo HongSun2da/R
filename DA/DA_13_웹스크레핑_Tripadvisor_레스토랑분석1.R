@@ -123,7 +123,7 @@ for (i in c(1:183)) {
 
   print(url) # debugging
 
-  html = xml2::read_html(urlString)
+  html = xml2::read_html(url)
   html_parsed = XML::htmlParse(html)
 
   name = XML::xpathSApply(html_parsed,
@@ -166,7 +166,7 @@ for (i in c(1:183)) {
                             quote = quote,
                             review = review,
                             rating = rating,
-                            stringsAsFactors = FALSE)        
+                            stringsAsFactors = FALSE)
     tripadv_review = rbind(tripadv_review, tripadv_df)
   }
   else break
