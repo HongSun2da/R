@@ -25,74 +25,51 @@
 ################################################################################
 
 #-------------------------------------------------------------------------------
-# 통계분석 > 차이검정 > t-검정> 독립표본 t-검정 - 2개             [Independent Sample t-test]
+# 통계분석 > 차이검정 > t-검정> 대응표본 t-검정 - 반복(2)         [Paired Sample t-test]
 #-------------------------------------------------------------------------------
+
 
 # 1. -------------------------------
 # 데이터 수집
-data = read.csv("./data/ist.csv",
+data = read.csv("./data/pst.csv",
                 header=TRUE,
                 na.strings = ".")
 
+
 # 데이터 이해
 View(data)
-str(data)   # 'data.frame':	60 obs. of  2 variables:
+str(data)   # 'data.frame':	20 obs. of  3 variables:
 
-# H0 : A타이어회사화 B타이어회사의 타이어수명은 차이가 없다.
-# H1 : A타이어회사화 B타이어회사의 타이어수명은 차이가 있다.
+# H0 : 다이어트약을 먹기 전과 후의 체중은 변화가 없다.
+# H1 : 다이어트약을 먹기 전과 후의 체중은 변화가 있다.
+
 
 # 기술통계
 library(psych)
-psych::describeBy(data$t_time, data$t_group, mat = TRUE)
+psych::describe(data)
 
-#     item group1 vars  n     mean       sd  median  trimmed      mad   min   max range        skew   kurtosis       se
-# X11    1      1    1 30 48670.57 3607.118 49047.0 48864.88 3274.322 38214 55750 17536 -0.61983820  0.6818221 658.5667
-# X12    2      2    1 30 51377.60 4197.600 51395.5 51459.54 3640.524 41852 59299 17447 -0.08715409 -0.5159939 766.3734
-
-
-# 등분산 검정
-var.test(data$t_time ~ data$t_group, data = data)
-
-# F test to compare two variances
-# 
-# data:  data$t_time by data$t_group
-# F = 0.73845, num df = 29, denom df = 29, p-value = 0.4192
-# alternative hypothesis: true ratio of variances is not equal to 1
-# 95 percent confidence interval:
-#   0.3514742 1.5514716
-# sample estimates:
-#   ratio of variances 
-# 0.7384458 
+#      vars  n  mean   sd median trimmed  mad min max range  skew kurtosis   se
+# ID      1 20 10.50 5.92   10.5   10.50 7.41   1  20    19  0.00    -1.38 1.32
+# pre     2 20 73.15 6.43   75.0   73.88 3.71  54  83    29 -1.26     1.88 1.44
+# post    3 20 70.60 6.10   71.5   71.62 3.71  50  77    27 -1.88     3.90 1.36
 
 
-# t-test # paired=TRUE 대응 표본
-test = t.test(data$t_time ~ data$t_group,
-              data = data,
+# t-test # var.equal = TRUE 등분산 확인 후 설정
+test = t.test(data$pre, data$post,
               alternative = c("two.sided"),
               paired=TRUE,
               conf.level = 0.95)
 test
 
-# Two Sample t-test
+# Paired t-test
 # 
-# data:  data$t_time by data$t_group
-# t = -2.679, df = 58, p-value = 0.009593
+# data:  data$pre and data$post
+# t = 3.6355, df = 19, p-value = 0.00176
 # alternative hypothesis: true difference in means is not equal to 0
 # 95 percent confidence interval:
-#   -4729.6975  -684.3692
+#   1.081935 4.018065
 # sample estimates:
-#   mean in group 1 mean in group 2 
-# 48670.57        51377.60 
-
-# 그래프 확인
-library(ggplot2)
-
-ggplot2::ggplot(data, 
-                aes(x=t_time)) +
-  ggplot2::geom_histogram(binwidth=5000) +
-  ggplot2::ggtitle("Car Company T Life") +
-  ggplot2::facet_grid(. ~ t_group)
-
-
+#   mean of the differences 
+# 2.55 
 
 
