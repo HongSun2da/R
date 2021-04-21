@@ -7,7 +7,7 @@
 #                               독립표본 t-검정 - 2개             [Independent Sample t-test]
 #                               대응표본 t-검정 - 반복(2)         [Paired Sample t-test]
 #                 분산분석 - 3개
-#                 (ANOVA)       
+#                 (ANOVA - Analysis of Variance)       
 #                               일원 분산분석     - 3개           [One Way ANOVA]
 #                               반복측정 분산분석 - 반복(3)       [Repeated Measures ANOVA]
 #                               이원 분산분석     - 요인 + 요인   [Two Way ANOVA] - 상호작용 확인
