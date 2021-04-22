@@ -120,7 +120,7 @@ plot(spray_compare,
      col="blue",
      las = 1)
 
-
+#install.packages("multcomp")
 library(multcomp)
 tuk_hsd = glht(model = spray_aov, linfct = mcp(spray="Tukey"))
 summary(tuk_hsd)
