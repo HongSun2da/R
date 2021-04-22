@@ -80,6 +80,34 @@ model = aov(score ~ time + Error(id/time),
 #-------------------------------------------------------------------------------
 # 통계분석 > 차이검정 > 분산분석(ANOVA) > 이원 분산분석     - 요인 + 요인   [Two Way ANOVA] - 상호작용 확인
 #-------------------------------------------------------------------------------
+model = aov(taste ~ meth * temp, 
+            data=train)
+
+model = aov(taste ~ meth + temp + meth:temp, 
+            data=train)
+
+
+#-------------------------------------------------------------------------------
+# 통계분석 > 차이검정 > 분산분석(ANOVA) > 이원 반복측정 분산- 반복 + 요인   [Two Way Repeated Measures ANOVA]
+#-------------------------------------------------------------------------------
+model = aov(painscore ~ time*group + Error(id), 
+            data = train)
+
+model = aov(painscore ~ time + group + time:group, 
+            data = train)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
